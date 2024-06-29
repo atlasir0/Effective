@@ -1,5 +1,10 @@
 env: "local"
-storage_path: "postgres://postgres:123@localhost:5432/todo_list?sslmode=disable"
+database:
+  host: "localhost"
+  port: 5432
+  user: "postgres"
+  password: "123"
+  name: "todo_list"
 HTTP:
   Port: 8080
   timeout: 10h

@@ -27,7 +27,7 @@ func New(log *slog.Logger, port int, storagePath string) *App {
 
 	app.Router = mux.NewRouter()
 	api.SetupRoutes(app.Router)
-
+	port = 8080
 	app.HTTPServer = &http.Server{
 		Addr:         ":" + strconv.Itoa(port),
 		Handler:      app.Router,

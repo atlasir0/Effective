@@ -1,0 +1,6 @@
+version: "1"
+packages:
+  - name: db
+    path: internal/storage/postgres/queries
+    queries: "./internal/storage/postgres/queries/queries.sql"
+    schema: "./internal/storage/postgres/schema.sql"
