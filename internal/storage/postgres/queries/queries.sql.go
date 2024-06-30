@@ -11,24 +11,24 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (encrypted_passport_series, encrypted_passport_number, surname, name, patronymic, address)
+INSERT INTO users (passport_series, passport_number, surname, name, patronymic, address)
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING user_id, encrypted_passport_series, encrypted_passport_number, surname, name, patronymic, address
+RETURNING user_id, passport_series, passport_number, surname, name, patronymic, address
 `
 
 type CreateUserParams struct {
-	EncryptedPassportSeries string
-	EncryptedPassportNumber string
-	Surname                 string
-	Name                    string
-	Patronymic              sql.NullString
-	Address                 sql.NullString
+	PassportSeries string
+	PassportNumber string
+	Surname        string
+	Name           string
+	Patronymic     sql.NullString
+	Address        sql.NullString
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRowContext(ctx, createUser,
-		arg.EncryptedPassportSeries,
-		arg.EncryptedPassportNumber,
+		arg.PassportSeries,
+		arg.PassportNumber,
 		arg.Surname,
 		arg.Name,
 		arg.Patronymic,
@@ -37,8 +37,8 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	var i User
 	err := row.Scan(
 		&i.UserID,
-		&i.EncryptedPassportSeries,
-		&i.EncryptedPassportNumber,
+		&i.PassportSeries,
+		&i.PassportNumber,
 		&i.Surname,
 		&i.Name,
 		&i.Patronymic,
@@ -58,7 +58,7 @@ func (q *Queries) DeleteUser(ctx context.Context, userID int32) error {
 }
 
 const getFilteredUsers = `-- name: GetFilteredUsers :many
-SELECT user_id, encrypted_passport_series, encrypted_passport_number, surname, name, patronymic, address FROM users
+SELECT user_id, passport_series, passport_number, surname, name, patronymic, address FROM users
 WHERE $1 = $2
 `
 
@@ -78,8 +78,8 @@ func (q *Queries) GetFilteredUsers(ctx context.Context, arg GetFilteredUsersPara
 		var i User
 		if err := rows.Scan(
 			&i.UserID,
-			&i.EncryptedPassportSeries,
-			&i.EncryptedPassportNumber,
+			&i.PassportSeries,
+			&i.PassportNumber,
 			&i.Surname,
 			&i.Name,
 			&i.Patronymic,
@@ -99,7 +99,7 @@ func (q *Queries) GetFilteredUsers(ctx context.Context, arg GetFilteredUsersPara
 }
 
 const getPaginatedUsers = `-- name: GetPaginatedUsers :many
-SELECT user_id, encrypted_passport_series, encrypted_passport_number, surname, name, patronymic, address FROM users
+SELECT user_id, passport_series, passport_number, surname, name, patronymic, address FROM users
 ORDER BY user_id
 LIMIT $1 OFFSET $2
 `
@@ -120,8 +120,8 @@ func (q *Queries) GetPaginatedUsers(ctx context.Context, arg GetPaginatedUsersPa
 		var i User
 		if err := rows.Scan(
 			&i.UserID,
-			&i.EncryptedPassportSeries,
-			&i.EncryptedPassportNumber,
+			&i.PassportSeries,
+			&i.PassportNumber,
 			&i.Surname,
 			&i.Name,
 			&i.Patronymic,
@@ -141,7 +141,7 @@ func (q *Queries) GetPaginatedUsers(ctx context.Context, arg GetPaginatedUsersPa
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT user_id, encrypted_passport_series, encrypted_passport_number, surname, name, patronymic, address FROM users
+SELECT user_id, passport_series, passport_number, surname, name, patronymic, address FROM users
 WHERE user_id = $1 LIMIT 1
 `
 
@@ -150,8 +150,8 @@ func (q *Queries) GetUserByID(ctx context.Context, userID int32) (User, error) {
 	var i User
 	err := row.Scan(
 		&i.UserID,
-		&i.EncryptedPassportSeries,
-		&i.EncryptedPassportNumber,
+		&i.PassportSeries,
+		&i.PassportNumber,
 		&i.Surname,
 		&i.Name,
 		&i.Patronymic,
@@ -197,7 +197,7 @@ func (q *Queries) GetUserWorklogs(ctx context.Context, userID int32) ([]Worklog,
 }
 
 const getUsers = `-- name: GetUsers :many
-SELECT user_id, encrypted_passport_series, encrypted_passport_number, surname, name, patronymic, address FROM users
+SELECT user_id, passport_series, passport_number, surname, name, patronymic, address FROM users
 `
 
 func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
@@ -211,8 +211,8 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 		var i User
 		if err := rows.Scan(
 			&i.UserID,
-			&i.EncryptedPassportSeries,
-			&i.EncryptedPassportNumber,
+			&i.PassportSeries,
+			&i.PassportNumber,
 			&i.Surname,
 			&i.Name,
 			&i.Patronymic,
@@ -284,26 +284,26 @@ func (q *Queries) StopTask(ctx context.Context, arg StopTaskParams) (Worklog, er
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
-SET encrypted_passport_series = $2, encrypted_passport_number = $3, surname = $4, name = $5, patronymic = $6, address = $7
+SET passport_series = $2, passport_number = $3, surname = $4, name = $5, patronymic = $6, address = $7
 WHERE user_id = $1
-RETURNING user_id, encrypted_passport_series, encrypted_passport_number, surname, name, patronymic, address
+RETURNING user_id, passport_series, passport_number, surname, name, patronymic, address
 `
 
 type UpdateUserParams struct {
-	UserID                  int32
-	EncryptedPassportSeries string
-	EncryptedPassportNumber string
-	Surname                 string
-	Name                    string
-	Patronymic              sql.NullString
-	Address                 sql.NullString
+	UserID         int32
+	PassportSeries string
+	PassportNumber string
+	Surname        string
+	Name           string
+	Patronymic     sql.NullString
+	Address        sql.NullString
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
 	row := q.db.QueryRowContext(ctx, updateUser,
 		arg.UserID,
-		arg.EncryptedPassportSeries,
-		arg.EncryptedPassportNumber,
+		arg.PassportSeries,
+		arg.PassportNumber,
 		arg.Surname,
 		arg.Name,
 		arg.Patronymic,
@@ -312,8 +312,8 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 	var i User
 	err := row.Scan(
 		&i.UserID,
-		&i.EncryptedPassportSeries,
-		&i.EncryptedPassportNumber,
+		&i.PassportSeries,
+		&i.PassportNumber,
 		&i.Surname,
 		&i.Name,
 		&i.Patronymic,

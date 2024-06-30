@@ -3,7 +3,8 @@ package main
 import (
 	"Effective_Mobile/internal/app"
 	"Effective_Mobile/internal/config"
-	"Effective_Mobile/internal/storage/postgres"
+
+	//"Effective_Mobile/internal/storage/postgres"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -24,15 +25,14 @@ func main() {
 
 	log.Debug("debug message")
 
+	// db, dbConfig, err := postgres.InitDB()
+	// if err != nil {
+	// 	log.Error("failed to initialize database", slog.String("error", err.Error()))
+	// 	os.Exit(1)
+	// }
+	// defer postgres.CloseDB(db, dbConfig)
 
-	db, dbConfig, err := postgres.InitDB()
-	if err != nil {
-		log.Error("failed to initialize database", slog.String("error", err.Error()))
-		os.Exit(1)
-	}
-	defer postgres.CloseDB(db, dbConfig)
-
-	application := app.New(log, cfg.HTTP.Port, cfg.StoragePath)
+	application := app.New(log, cfg.HTTP.Port)
 
 	go application.MustRun()
 

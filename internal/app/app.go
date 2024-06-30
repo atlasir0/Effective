@@ -1,33 +1,29 @@
 package app
 
 import (
+	"Effective_Mobile/internal/api"
 	"context"
 	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
 
-	"Effective_Mobile/internal/api"
-
 	"github.com/gorilla/mux"
 )
 
 type App struct {
-	Log         *slog.Logger
-	HTTPServer  *http.Server
-	Router      *mux.Router
-	StoragePath string
+	Log        *slog.Logger
+	HTTPServer *http.Server
+	Router     *mux.Router
 }
 
-func New(log *slog.Logger, port int, storagePath string) *App {
+func New(log *slog.Logger, port int) *App {
 	app := &App{
-		Log:         log,
-		StoragePath: storagePath,
+		Log: log,
 	}
 
 	app.Router = mux.NewRouter()
 	api.SetupRoutes(app.Router)
-	port = 8080
 	app.HTTPServer = &http.Server{
 		Addr:         ":" + strconv.Itoa(port),
 		Handler:      app.Router,

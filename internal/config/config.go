@@ -5,52 +5,68 @@ import (
 	"os"
 	"time"
 
-	"github.com/ilyakaznacheev/cleanenv"
+	"log/slog"
+
+	"github.com/spf13/viper"
 )
 
 type Config struct {
-	Env         string     `yaml:"env" env-default:"local"`
-	StoragePath string     `yaml:"storage_path" env-required:"true"`
-	HTTP        HTTPConfig `yaml:"http"`
+    Env      string     `mapstructure:"env"`
+    Database Database   `mapstructure:"database"`
+    HTTP     HTTPConfig `mapstructure:"http"`
+}
+
+type Database struct {
+    Host     string `mapstructure:"host"`
+    Port     int    `mapstructure:"port"`
+    User     string `mapstructure:"user"`
+    Password string `mapstructure:"password"`
+    Name     string `mapstructure:"name"`
 }
 
 type HTTPConfig struct {
-	Port    int           `yaml:"port"`
-	Timeout time.Duration `yaml:"timeout"`
+    Port    int           `mapstructure:"port"`
+    Timeout time.Duration `mapstructure:"timeout"`
 }
 
 func MustLoad() *Config {
-	configPath := fetchConfigPath()
-	if configPath == "" {
-		panic("config path is empty")
-	}
+    configPath := fetchConfigPath()
+    if configPath == "" {
+        panic("config path is empty")
+    }
 
-	return MustLoadPath(configPath)
+    return MustLoadPath(configPath)
 }
 
 func MustLoadPath(configPath string) *Config {
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		panic("config file does not exist: " + configPath)
-	}
+    if _, err := os.Stat(configPath); os.IsNotExist(err) {
+        panic("config file does not exist: " + configPath)
+    }
 
-	var cfg Config
+    viper.SetConfigFile(configPath)
+    if err := viper.ReadInConfig(); err != nil {
+        panic("cannot read config: " + err.Error())
+    }
 
-	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
-		panic("cannot read config: " + err.Error())
-	}
+    var cfg Config
+    if err := viper.Unmarshal(&cfg); err != nil {
+        panic("cannot unmarshal config: " + err.Error())
+    }
 
-	return &cfg
+    slog.Debug("Loaded configuration", slog.Any("config", cfg))
+
+    return &cfg
 }
 
 func fetchConfigPath() string {
-	var res string
+    var res string
 
-	flag.StringVar(&res, "config", "", "path to config file")
-	flag.Parse()
+    flag.StringVar(&res, "config", "", "path to config file")
+    flag.Parse()
 
-	if res == "" {
-		res = os.Getenv("CONFIG_PATH")
-	}
+    if res == "" {
+        res = os.Getenv("CONFIG_PATH")
+    }
 
-	return res
+    return res
 }

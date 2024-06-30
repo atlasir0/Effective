@@ -2,3 +2,5 @@ database: "postgres"
 driver: "postgres"
 url: "postgres://postgres:yourpassword@localhost:5432/todo_list?sslmode=disable"
 migrations_dir: "tasks"
+
+migrate -source migrations -database postgres://user:yourpassword@host:5432/todo_list up

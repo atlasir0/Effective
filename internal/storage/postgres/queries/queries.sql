@@ -15,13 +15,13 @@ WHERE user_id = $1 LIMIT 1;
 SELECT * FROM users;
 
 -- name: CreateUser :one
-INSERT INTO users (encrypted_passport_series, encrypted_passport_number, surname, name, patronymic, address)
+INSERT INTO users (passport_series, passport_number, surname, name, patronymic, address)
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 
 -- name: UpdateUser :one
 UPDATE users
-SET encrypted_passport_series = $2, encrypted_passport_number = $3, surname = $4, name = $5, patronymic = $6, address = $7
+SET passport_series = $2, passport_number = $3, surname = $4, name = $5, patronymic = $6, address = $7
 WHERE user_id = $1
 RETURNING *;
 

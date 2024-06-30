@@ -16,13 +16,13 @@ type Task struct {
 }
 
 type User struct {
-	UserID                  int32
-	EncryptedPassportSeries string
-	EncryptedPassportNumber string
-	Surname                 string
-	Name                    string
-	Patronymic              sql.NullString
-	Address                 sql.NullString
+	UserID         int32
+	PassportSeries string
+	PassportNumber string
+	Surname        string
+	Name           string
+	Patronymic     sql.NullString
+	Address        sql.NullString
 }
 
 type Worklog struct {
