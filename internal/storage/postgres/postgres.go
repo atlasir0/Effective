@@ -1,3 +1,4 @@
+
 package postgres
 
 import (
@@ -19,9 +20,6 @@ type Config struct {
 		Password string `yaml:"password"`
 		Name     string `yaml:"name"`
 	} `yaml:"database"`
-	PortBK struct {
-		Port int `yaml:"port"`
-	} `yaml:"port_bk"`
 }
 
 func ReadConfig(filename string) (*Config, error) {
@@ -53,6 +51,7 @@ func createDatabase(config *Config) error {
 		return err
 	}
 	if exists {
+		log.Println("Database already exists")
 		return nil
 	}
 
@@ -61,6 +60,7 @@ func createDatabase(config *Config) error {
 		return err
 	}
 
+	log.Println("Database created successfully")
 	return nil
 }
 
@@ -72,7 +72,7 @@ func runMigrations(config *Config) error {
 }
 
 func InitDB() (*sql.DB, *Config, error) {
-	cfg, err := ReadConfig("config.yaml")
+	cfg, err := ReadConfig("config/local.yaml")
 	if err != nil {
 		return nil, nil, fmt.Errorf("could not read config: %w", err)
 	}
@@ -93,6 +93,7 @@ func InitDB() (*sql.DB, *Config, error) {
 		return nil, nil, fmt.Errorf("could not run migrations: %w", err)
 	}
 
+	log.Println("Database initialized successfully")
 	return db, cfg, nil
 }
 
@@ -125,4 +126,8 @@ func CloseDB(db *sql.DB, config *Config) {
 	if err != nil {
 		log.Fatalf("could not drop database: %v", err)
 	}
+
+	log.Println("Database closed successfully")
 }
+
+
