@@ -3,8 +3,9 @@ package main
 import (
 	"Effective_Mobile/internal/app"
 	"Effective_Mobile/internal/config"
+	"Effective_Mobile/internal/repositories"
+	"Effective_Mobile/internal/services"
 	"Effective_Mobile/internal/storage/postgres"
-	// queries "Effective_Mobile/internal/queries"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -24,7 +25,6 @@ func main() {
 	log.Info("starting application", slog.Any("config", cfg))
 
 	log.Debug("debug message")
-
 	db, dbConfig, err := postgres.InitDB()
 	if err != nil {
 		log.Error("failed to initialize database", slog.String("error", err.Error()))
@@ -32,7 +32,13 @@ func main() {
 	}
 	defer postgres.CloseDB(db, dbConfig)
 
-	application := app.New(log, cfg.HTTP.Port)
+	userRepo := repositories.NewUserRepository(db)
+	worklogRepo := repositories.NewWorklogRepository(db)
+	
+	userService := services.NewUserService(userRepo)
+	worklogService := services.NewWorklogService(worklogRepo)
+
+	application := app.New(log, cfg.HTTP.Port, userService, worklogService)
 
 	go application.MustRun()
 
@@ -42,7 +48,6 @@ func main() {
 
 	log.Info("application stopped", slog.String("signal", sign.String()))
 	application.Stop()
-
 	log.Info("application stopped")
 }
 
