@@ -10,6 +10,7 @@ CREATE TABLE users (
     UNIQUE (passport_series, passport_number)
 );
 
+
 CREATE TABLE tasks (
     task_id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,

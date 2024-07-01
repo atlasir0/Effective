@@ -1,7 +1,8 @@
 package app
 
 import (
-	api "Effective_Mobile/internal/handlers_api"
+	handlers "Effective_Mobile/internal/handlers_api"
+	"Effective_Mobile/internal/services"
 	"context"
 	"log/slog"
 	"net/http"
@@ -17,19 +18,18 @@ type App struct {
 	Router     *mux.Router
 }
 
-func New(log *slog.Logger, port int) *App {
+func New(log *slog.Logger, port int, userService *services.UserService, worklogService *services.WorklogService) *App {
 	app := &App{
 		Log: log,
 	}
 	app.Router = mux.NewRouter()
-	api.SetupRoutes(app.Router)
+	handlers.SetupRoutes(app.Router, userService, worklogService)
 	app.HTTPServer = &http.Server{
 		Addr:    ":" + strconv.Itoa(port),
 		Handler: app.Router,
 	}
 	return app
 }
-
 
 func (a *App) MustRun() {
 	a.Log.Info("starting HTTP server", slog.String("addr", a.HTTPServer.Addr))
@@ -42,7 +42,6 @@ func (a *App) MustRun() {
 func (a *App) Stop() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	
 	if err := a.HTTPServer.Shutdown(ctx); err != nil {
 		a.Log.Error("failed to shutdown HTTP server", slog.String("error", err.Error()))
 	} else {

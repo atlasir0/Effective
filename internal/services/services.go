@@ -1,8 +1,8 @@
 package services
 
 import (
-	models "Effective_Mobile/internal/queries"
 	"Effective_Mobile/internal/repositories"
+	"Effective_Mobile/internal/models"
 )
 
 type UserService struct {
@@ -24,7 +24,7 @@ func NewWorklogService(worklogRepo *repositories.WorklogRepository) *WorklogServ
 		WorklogRepo: worklogRepo,
 	}
 }
-//TODO: нету пагинации и надо разделить на 2 пакета WorklogService и UserService
+
 func (s *UserService) CreateUser(user *models.User) error {
 	return s.UserRepo.CreateUser(user)
 }
