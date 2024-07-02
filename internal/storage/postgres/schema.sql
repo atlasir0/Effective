@@ -16,6 +16,6 @@ CREATE TABLE worklogs (
     description TEXT,
     start_time TIMESTAMP NOT NULL,
     end_time TIMESTAMP,
-    hours_spent INTERVAL,
+    hours_spent TEXT,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );

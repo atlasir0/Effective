@@ -11,6 +11,5 @@ type Worklog struct {
 	Description string    `json:"description,omitempty"`
 	StartTime   time.Time `json:"start_time,omitempty"`
 	EndTime     time.Time `json:"end_time,omitempty"`
-	HoursSpent  int64     `json:"hours_spent,omitempty"`
+	HoursSpent  string    `json:"hours_spent,omitempty"`
 }
-

@@ -31,6 +31,8 @@ func (h *WorklogHandler) StartTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	worklog.StartTime = worklog.StartTime.Truncate(time.Minute)
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(worklog)
@@ -65,6 +67,8 @@ func (h *WorklogHandler) StopTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	worklog.EndTime = worklog.EndTime.Truncate(time.Minute)
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(worklog)
@@ -87,6 +91,11 @@ func (h *WorklogHandler) GetUserWorklogs(w http.ResponseWriter, r *http.Request)
 		log.Printf("Error getting user worklogs: %v", err)
 		http.Error(w, "Failed to get user worklogs", http.StatusInternalServerError)
 		return
+	}
+
+	for i := range worklogs {
+		worklogs[i].StartTime = worklogs[i].StartTime.Truncate(time.Minute)
+		worklogs[i].EndTime = worklogs[i].EndTime.Truncate(time.Minute)
 	}
 
 	w.Header().Set("Content-Type", "application/json")

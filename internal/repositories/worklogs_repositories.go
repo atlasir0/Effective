@@ -1,12 +1,13 @@
 package repositories
 
 import (
-	"Effective_Mobile/internal/models"
-	db "Effective_Mobile/internal/queries"
 	"context"
 	"database/sql"
 	"log"
 	"time"
+
+	"Effective_Mobile/internal/models"
+	db "Effective_Mobile/internal/queries"
 )
 
 type WorklogRepository struct {
@@ -57,14 +58,24 @@ func (r *WorklogRepository) StopTask(worklog *models.Worklog) error {
 		return err
 	}
 
+	var endTime time.Time
+	if stoppedWorklog.EndTime.Valid {
+		endTime = stoppedWorklog.EndTime.Time
+	}
+
+	var hoursSpent string
+	if !stoppedWorklog.StartTime.IsZero() && !endTime.IsZero() {
+		hoursSpent = endTime.Sub(stoppedWorklog.StartTime).String()
+	}
+
 	*worklog = models.Worklog{
 		WorklogID:   stoppedWorklog.WorklogID,
 		UserID:      stoppedWorklog.UserID,
 		Title:       stoppedWorklog.Title,
 		Description: stoppedWorklog.Description.String,
 		StartTime:   stoppedWorklog.StartTime,
-		EndTime:     stoppedWorklog.EndTime.Time,
-		HoursSpent:  stoppedWorklog.HoursSpent.Int64,
+		EndTime:     endTime,
+		HoursSpent:  hoursSpent,
 	}
 	return nil
 }
@@ -78,14 +89,14 @@ func (r *WorklogRepository) GetUserWorklogs(userID int32) ([]models.Worklog, err
 
 	var worklogs []models.Worklog
 	for _, dbWorklog := range dbWorklogs {
-		endTime := time.Time{}
+		var endTime time.Time
 		if dbWorklog.EndTime.Valid {
 			endTime = dbWorklog.EndTime.Time
 		}
 
-		hoursSpent := int64(0)
-		if dbWorklog.HoursSpent.Valid {
-			hoursSpent = dbWorklog.HoursSpent.Int64
+		var hoursSpent string
+		if !dbWorklog.StartTime.IsZero() && !endTime.IsZero() {
+			hoursSpent = endTime.Sub(dbWorklog.StartTime).String()
 		}
 
 		worklogs = append(worklogs, models.Worklog{

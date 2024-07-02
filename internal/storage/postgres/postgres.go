@@ -1,4 +1,3 @@
-
 package postgres
 
 import (
@@ -129,5 +128,3 @@ func CloseDB(db *sql.DB, config *Config) {
 
 	log.Println("Database closed successfully")
 }
-
-

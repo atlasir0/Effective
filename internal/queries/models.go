@@ -26,5 +26,5 @@ type Worklog struct {
 	Description sql.NullString
 	StartTime   time.Time
 	EndTime     sql.NullTime
-	HoursSpent  sql.NullInt64
+	HoursSpent  sql.NullString
 }
