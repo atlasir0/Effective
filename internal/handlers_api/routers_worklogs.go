@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"Effective_Mobile/internal/services"
-
 	"github.com/gorilla/mux"
 )
 
@@ -13,6 +12,8 @@ func SetupRoutes(router *mux.Router, userService *services.UserService, worklogS
 	userHandler.RegisterRoutes(router)
 	worklogHandler.RegisterRoutes(router)
 }
+
+
 
 type WorklogHandler struct {
 	WorklogService *services.WorklogService

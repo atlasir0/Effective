@@ -18,6 +18,11 @@ const (
 	envProd  = "prod"
 )
 
+//TODO: удалить task и оставить worklogs и users так же сделать пагинацию и норм таймер
+//TODO: рефакторинг 
+//TODO: сделать нормальное отключение миграций 
+//TODO: сделать свагер и покрыть тестами
+
 func main() {
 	cfg := config.MustLoad()
 	log := setupLogger(cfg.Env)
@@ -34,7 +39,7 @@ func main() {
 
 	userRepo := repositories.NewUserRepository(db)
 	worklogRepo := repositories.NewWorklogRepository(db)
-	
+
 	userService := services.NewUserService(userRepo)
 	worklogService := services.NewWorklogService(worklogRepo)
 

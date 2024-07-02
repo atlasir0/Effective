@@ -117,5 +117,5 @@ func (r *UserRepository) DeleteUser(userID int32) error {
 		log.Printf("failed to delete user: %v", err)
 		return err
 	}
-	return nil
+	return nil 
 }

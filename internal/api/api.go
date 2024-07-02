@@ -28,6 +28,7 @@ func (a *API) RegisterHandlers() {
 	userService := services.NewUserService(userRepo)
 	worklogService := services.NewWorklogService(worklogRepo)
 
+
 	userHandler := handlers.NewUserHandler(userService)
 	worklogHandler := handlers.NewWorklogHandler(worklogService)
 

@@ -1,8 +1,8 @@
 package services
 
 import (
-	"Effective_Mobile/internal/repositories"
 	"Effective_Mobile/internal/models"
+	"Effective_Mobile/internal/repositories"
 )
 
 type UserService struct {
@@ -12,16 +12,6 @@ type UserService struct {
 func NewUserService(userRepo *repositories.UserRepository) *UserService {
 	return &UserService{
 		UserRepo: userRepo,
-	}
-}
-
-type WorklogService struct {
-	WorklogRepo *repositories.WorklogRepository
-}
-
-func NewWorklogService(worklogRepo *repositories.WorklogRepository) *WorklogService {
-	return &WorklogService{
-		WorklogRepo: worklogRepo,
 	}
 }
 
@@ -43,6 +33,16 @@ func (s *UserService) UpdateUser(user *models.User) error {
 
 func (s *UserService) DeleteUser(userID int32) error {
 	return s.UserRepo.DeleteUser(userID)
+}
+
+type WorklogService struct {
+	WorklogRepo *repositories.WorklogRepository
+}
+
+func NewWorklogService(worklogRepo *repositories.WorklogRepository) *WorklogService {
+	return &WorklogService{
+		WorklogRepo: worklogRepo,
+	}
 }
 
 func (s *WorklogService) StartTask(worklog *models.Worklog) error {
