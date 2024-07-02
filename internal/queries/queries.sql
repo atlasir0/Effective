@@ -35,12 +35,13 @@ WHERE user_id = $1
 ORDER BY start_time;
 
 -- name: StartTask :one
-INSERT INTO worklogs (user_id, task_id, start_time)
-VALUES ($1, $2, NOW())
+INSERT INTO worklogs (user_id, title, description, start_time)
+VALUES ($1, $2, $3, NOW())
 RETURNING *;
 
 -- name: StopTask :one
 UPDATE worklogs
-SET end_time = NOW(), hours_spent = NOW() - start_time
-WHERE user_id = $1 AND task_id = $2 AND end_time IS NULL
+SET end_time = NOW(), 
+    hours_spent = age(NOW(), start_time)
+WHERE user_id = $1 AND worklog_id = $2 AND end_time IS NULL
 RETURNING *;

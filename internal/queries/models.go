@@ -9,12 +9,6 @@ import (
 	"time"
 )
 
-type Task struct {
-	TaskID      int32
-	Title       string
-	Description sql.NullString
-}
-
 type User struct {
 	UserID         int32
 	PassportSeries string
@@ -26,10 +20,11 @@ type User struct {
 }
 
 type Worklog struct {
-	WorklogID  int32
-	UserID     int32
-	TaskID     int32
-	StartTime  time.Time
-	EndTime    sql.NullTime
-	HoursSpent sql.NullInt64
+	WorklogID   int32
+	UserID      int32
+	Title       string
+	Description sql.NullString
+	StartTime   time.Time
+	EndTime     sql.NullTime
+	HoursSpent  sql.NullInt64
 }

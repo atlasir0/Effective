@@ -161,7 +161,7 @@ func (q *Queries) GetUserByID(ctx context.Context, userID int32) (User, error) {
 }
 
 const getUserWorklogs = `-- name: GetUserWorklogs :many
-SELECT worklog_id, user_id, task_id, start_time, end_time, hours_spent FROM worklogs
+SELECT worklog_id, user_id, title, description, start_time, end_time, hours_spent FROM worklogs
 WHERE user_id = $1
 ORDER BY start_time
 `
@@ -178,7 +178,8 @@ func (q *Queries) GetUserWorklogs(ctx context.Context, userID int32) ([]Worklog,
 		if err := rows.Scan(
 			&i.WorklogID,
 			&i.UserID,
-			&i.TaskID,
+			&i.Title,
+			&i.Description,
 			&i.StartTime,
 			&i.EndTime,
 			&i.HoursSpent,
@@ -232,23 +233,25 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 }
 
 const startTask = `-- name: StartTask :one
-INSERT INTO worklogs (user_id, task_id, start_time)
-VALUES ($1, $2, NOW())
-RETURNING worklog_id, user_id, task_id, start_time, end_time, hours_spent
+INSERT INTO worklogs (user_id, title, description, start_time)
+VALUES ($1, $2, $3, NOW())
+RETURNING worklog_id, user_id, title, description, start_time, end_time, hours_spent
 `
 
 type StartTaskParams struct {
-	UserID int32
-	TaskID int32
+	UserID      int32
+	Title       string
+	Description sql.NullString
 }
 
 func (q *Queries) StartTask(ctx context.Context, arg StartTaskParams) (Worklog, error) {
-	row := q.db.QueryRowContext(ctx, startTask, arg.UserID, arg.TaskID)
+	row := q.db.QueryRowContext(ctx, startTask, arg.UserID, arg.Title, arg.Description)
 	var i Worklog
 	err := row.Scan(
 		&i.WorklogID,
 		&i.UserID,
-		&i.TaskID,
+		&i.Title,
+		&i.Description,
 		&i.StartTime,
 		&i.EndTime,
 		&i.HoursSpent,
@@ -258,23 +261,25 @@ func (q *Queries) StartTask(ctx context.Context, arg StartTaskParams) (Worklog, 
 
 const stopTask = `-- name: StopTask :one
 UPDATE worklogs
-SET end_time = NOW(), hours_spent = NOW() - start_time
-WHERE user_id = $1 AND task_id = $2 AND end_time IS NULL
-RETURNING worklog_id, user_id, task_id, start_time, end_time, hours_spent
+SET end_time = NOW(), 
+    hours_spent = age(NOW(), start_time)
+WHERE user_id = $1 AND worklog_id = $2 AND end_time IS NULL
+RETURNING worklog_id, user_id, title, description, start_time, end_time, hours_spent
 `
 
 type StopTaskParams struct {
-	UserID int32
-	TaskID int32
+	UserID    int32
+	WorklogID int32
 }
 
 func (q *Queries) StopTask(ctx context.Context, arg StopTaskParams) (Worklog, error) {
-	row := q.db.QueryRowContext(ctx, stopTask, arg.UserID, arg.TaskID)
+	row := q.db.QueryRowContext(ctx, stopTask, arg.UserID, arg.WorklogID)
 	var i Worklog
 	err := row.Scan(
 		&i.WorklogID,
 		&i.UserID,
-		&i.TaskID,
+		&i.Title,
+		&i.Description,
 		&i.StartTime,
 		&i.EndTime,
 		&i.HoursSpent,
