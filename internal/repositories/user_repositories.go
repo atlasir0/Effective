@@ -3,9 +3,7 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"log"
-	"time"
 
 	"Effective_Mobile/internal/models"
 	db "Effective_Mobile/internal/queries"
@@ -19,12 +17,6 @@ func NewUserRepository(dbConn *sql.DB) *UserRepository {
 	return &UserRepository{
 		Queries: db.New(dbConn),
 	}
-}
-
-func FormatDurationWithoutSeconds(d time.Duration) string {
-	hours := int(d.Hours())
-	minutes := int(d.Minutes()) % 60
-	return fmt.Sprintf("%02d:%02d", hours, minutes)
 }
 
 func (r *UserRepository) CreateUser(user *models.User) error {
