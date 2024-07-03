@@ -13,8 +13,6 @@ func SetupRoutes(router *mux.Router, userService *services.UserService, worklogS
 	worklogHandler.RegisterRoutes(router)
 }
 
-
-
 type WorklogHandler struct {
 	WorklogService *services.WorklogService
 }

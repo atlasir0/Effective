@@ -119,3 +119,53 @@ func (r *UserRepository) DeleteUser(userID int32) error {
 	}
 	return nil
 }
+
+func (r *UserRepository) GetPaginatedUsers(limit, offset int32) ([]models.User, error) {
+	params := db.GetPaginatedUsersParams{
+		Limit:  limit,
+		Offset: offset,
+	}
+	dbUsers, err := r.Queries.GetPaginatedUsers(context.Background(), params)
+	if err != nil {
+		log.Printf("failed to get paginated users: %v", err)
+		return nil, err
+	}
+	var users []models.User
+	for _, dbUser := range dbUsers {
+		users = append(users, models.User{
+			UserID:         dbUser.UserID,
+			PassportSeries: dbUser.PassportSeries,
+			PassportNumber: dbUser.PassportNumber,
+			Surname:        dbUser.Surname,
+			Name:           dbUser.Name,
+			Patronymic:     dbUser.Patronymic.String,
+			Address:        dbUser.Address.String,
+		})
+	}
+	return users, nil
+}
+
+func (r *UserRepository) GetFilteredUsers(column1, column2 string) ([]models.User, error) {
+	params := db.GetFilteredUsersParams{
+		Column1: column1,
+
+	}
+	dbUsers, err := r.Queries.GetFilteredUsers(context.Background(), params)
+	if err != nil {
+		log.Printf("failed to get filtered users: %v", err)
+		return nil, err
+	}
+	var users []models.User
+	for _, dbUser := range dbUsers {
+		users = append(users, models.User{
+			UserID:         dbUser.UserID,
+			PassportSeries: dbUser.PassportSeries,
+			PassportNumber: dbUser.PassportNumber,
+			Surname:        dbUser.Surname,
+			Name:           dbUser.Name,
+			Patronymic:     dbUser.Patronymic.String,
+			Address:        dbUser.Address.String,
+		})
+	}
+	return users, nil
+}

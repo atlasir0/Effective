@@ -17,6 +17,8 @@ func NewUserHandler(userService *services.UserService) *UserHandler {
 }
 
 func (h *UserHandler) RegisterRoutes(router *mux.Router) {
+	router.HandleFunc("/users/paginated", h.GetPaginatedUsers).Methods("GET")
+	router.HandleFunc("/users/filtered", h.GetFilteredUsers).Methods("GET")
 	router.HandleFunc("/users", h.CreateUser).Methods("POST")
 	router.HandleFunc("/users", h.GetAllUsers).Methods("GET")
 	router.HandleFunc("/users/{id}", h.GetUserByID).Methods("GET")

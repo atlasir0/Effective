@@ -9,6 +9,7 @@ CREATE TABLE users (
     UNIQUE (passport_series, passport_number)
 );
 
+
 CREATE TABLE worklogs (
     worklog_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,

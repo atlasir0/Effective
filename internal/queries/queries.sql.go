@@ -58,17 +58,25 @@ func (q *Queries) DeleteUser(ctx context.Context, userID int32) error {
 }
 
 const getFilteredUsers = `-- name: GetFilteredUsers :many
-SELECT user_id, passport_series, passport_number, surname, name, patronymic, address FROM users
-WHERE $1 = $2
+SELECT user_id, passport_series, passport_number, surname, name, patronymic, address 
+FROM users
+WHERE
+    CASE 
+        WHEN $1 = 'surname' THEN surname
+        WHEN $1 = 'name' THEN name
+        WHEN $1 = 'patronymic' THEN patronymic
+        WHEN $1 = 'address' THEN address
+        ELSE NULL 
+    END = $2
 `
 
 type GetFilteredUsersParams struct {
 	Column1 interface{}
-	Column2 interface{}
+	Surname string
 }
 
 func (q *Queries) GetFilteredUsers(ctx context.Context, arg GetFilteredUsersParams) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, getFilteredUsers, arg.Column1, arg.Column2)
+	rows, err := q.db.QueryContext(ctx, getFilteredUsers, arg.Column1, arg.Surname)
 	if err != nil {
 		return nil, err
 	}

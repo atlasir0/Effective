@@ -1,5 +1,7 @@
 package postgres
 
+//TODO: убрать строку 115
+
 import (
 	"database/sql"
 	"fmt"

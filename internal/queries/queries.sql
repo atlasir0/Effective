@@ -4,8 +4,18 @@ ORDER BY user_id
 LIMIT $1 OFFSET $2;
 
 -- name: GetFilteredUsers :many
-SELECT * FROM users
-WHERE $1 = $2;
+SELECT user_id, passport_series, passport_number, surname, name, patronymic, address 
+FROM users
+WHERE
+    CASE 
+        WHEN $1 = 'surname' THEN surname
+        WHEN $1 = 'name' THEN name
+        WHEN $1 = 'patronymic' THEN patronymic
+        WHEN $1 = 'address' THEN address
+        ELSE NULL 
+    END = $2;
+
+
 
 -- name: GetUserByID :one
 SELECT * FROM users

@@ -10,7 +10,7 @@ import (
 
 	"github.com/gorilla/mux"
 )
-//TODO: выводить статус 200 в случае успешного результата
+
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	log.Println("Received request to create user")
 
@@ -47,8 +47,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println("Successfully created user")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("200"))
+	respondWithJSON(w, http.StatusOK, map[string]string{"status": "200", "message": "User created successfully"})
 }
 
 func (h *UserHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
@@ -125,8 +124,8 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	log.Println("Successfully updated user")
+	respondWithJSON(w, http.StatusOK, map[string]string{"status": "200", "message": "User updated successfully"})
 }
 
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
@@ -146,8 +145,53 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	log.Println("Successfully deleted user")
+	respondWithJSON(w, http.StatusOK, map[string]string{"status": "200", "message": "User deleted successfully"})
+}
+
+func (h *UserHandler) GetPaginatedUsers(w http.ResponseWriter, r *http.Request) {
+	log.Println("Received request to get paginated users")
+
+	limitStr := r.URL.Query().Get("limit")
+	offsetStr := r.URL.Query().Get("offset")
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil {
+		limit = 10
+	}
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil {
+		offset = 0
+	}
+
+	users, err := h.UserService.GetPaginatedUsers(int32(limit), int32(offset))
+	if err != nil {
+		log.Printf("Error getting paginated users: %v", err)
+		http.Error(w, "Failed to get paginated users", http.StatusInternalServerError)
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, users)
+}
+
+func (h *UserHandler) GetFilteredUsers(w http.ResponseWriter, r *http.Request) {
+	log.Println("Received request to get filtered users")
+
+	column1 := r.URL.Query().Get("column1")
+	column2 := r.URL.Query().Get("column2")
+
+	if column1 == "" || column2 == "" {
+		http.Error(w, "Both column1 and column2 parameters are required", http.StatusBadRequest)
+		return
+	}
+
+	users, err := h.UserService.GetFilteredUsers(column1, column2)
+	if err != nil {
+		log.Printf("Error getting filtered users: %v", err)
+		http.Error(w, "Failed to get filtered users", http.StatusInternalServerError)
+		return
+	}
+	respondWithJSON(w, http.StatusOK, users)
 }
 
 func respondWithJSON(w http.ResponseWriter, status int, payload interface{}) {

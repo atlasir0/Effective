@@ -56,3 +56,11 @@ func (s *WorklogService) StopTask(worklog *models.Worklog) error {
 func (s *WorklogService) GetUserWorklogs(userID int32) ([]models.Worklog, error) {
 	return s.WorklogRepo.GetUserWorklogs(userID)
 }
+
+func (s *UserService) GetPaginatedUsers(limit, offset int32) ([]models.User, error) {
+	return s.UserRepo.GetPaginatedUsers(limit, offset)
+}
+
+func (s *UserService) GetFilteredUsers(column1, column2 string) ([]models.User, error) {
+	return s.UserRepo.GetFilteredUsers(column1, column2)
+}
