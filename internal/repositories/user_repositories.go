@@ -146,15 +146,17 @@ func (r *UserRepository) GetPaginatedUsers(limit, offset int32) ([]models.User, 
 }
 
 func (r *UserRepository) GetFilteredUsers(column1, column2 string) ([]models.User, error) {
+	log.Printf("Filtering users by column1: %s, column2: %s", column1, column2)
 	params := db.GetFilteredUsersParams{
 		Column1: column1,
-
+		Surname: column2,
 	}
 	dbUsers, err := r.Queries.GetFilteredUsers(context.Background(), params)
 	if err != nil {
 		log.Printf("failed to get filtered users: %v", err)
 		return nil, err
 	}
+	log.Printf("Found %d users", len(dbUsers))
 	var users []models.User
 	for _, dbUser := range dbUsers {
 		users = append(users, models.User{
