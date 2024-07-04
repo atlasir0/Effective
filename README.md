@@ -45,7 +45,18 @@
     ```http
     POST http://localhost:8080/users
     ```
-
+    пример
+    ```example
+    Post http://localhost:8080/worklogs
+    {
+    "surname": "Иванов",
+    "name": "Иван",
+    "patronymic": "Иванович",
+    "address": "г. Москва, ул. Ленина, д. 10, кв. 5",
+    "passport_series": "1234",
+    "passport_number": "567890"
+    }
+    ```
 - Получить информацию о задаче по ID: 
     ```http
     GET http://localhost:8080/users/{id}
@@ -82,6 +93,7 @@
     ```http
     Post /users/filtered?column1={name}&column2={Jhon}
     ```
+    пример
     ```
     Post http://localhost:8080/worklogs
     {
@@ -94,6 +106,7 @@
     ```http
     Post /worklogs/{user_id}
     ```
+    пример
     ```
     Post http://localhost:8080/worklogs
     {
@@ -104,6 +117,7 @@
     ```http
     GET /worklogs/user/{user_id}
     ```
+
     ```example
     Get http://localhost:8080/worklogs/user/1
 
