@@ -1,11 +1,8 @@
 package main
 
 import (
-	"Effective_Mobile/internal/app"
 	"Effective_Mobile/internal/config"
-	"Effective_Mobile/internal/repositories"
-	"Effective_Mobile/internal/services"
-	"Effective_Mobile/internal/storage/postgres"
+	initApp "Effective_Mobile/internal/initApp"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -18,32 +15,17 @@ const (
 	envProd  = "prod"
 )
 
-//TODO: удалить task и оставить worklogs и users так же сделать пагинацию и норм таймер
-//TODO: рефакторинг 
-//TODO: сделать нормальное отключение миграций 
-//TODO: сделать свагер и покрыть тестами
-
 func main() {
 	cfg := config.MustLoad()
 	log := setupLogger(cfg.Env)
 
 	log.Info("starting application", slog.Any("config", cfg))
 
-	log.Debug("debug message")
-	db, dbConfig, err := postgres.InitDB()
+	application, err := initApp.InitializeApp(cfg, log)
 	if err != nil {
-		log.Error("failed to initialize database", slog.String("error", err.Error()))
+		log.Error("failed to initialize application", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
-	defer postgres.CloseDB(db, dbConfig)
-
-	userRepo := repositories.NewUserRepository(db)
-	worklogRepo := repositories.NewWorklogRepository(db)
-
-	userService := services.NewUserService(userRepo)
-	worklogService := services.NewWorklogService(worklogRepo)
-
-	application := app.New(log, cfg.HTTP.Port, userService, worklogService)
 
 	go application.MustRun()
 

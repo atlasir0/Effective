@@ -1,7 +1,7 @@
 package services
 
 import (
-	"Effective_Mobile/internal/models"
+	models "Effective_Mobile/internal/queries"
 	"Effective_Mobile/internal/repositories"
 )
 
@@ -12,6 +12,16 @@ type UserService struct {
 func NewUserService(userRepo *repositories.UserRepository) *UserService {
 	return &UserService{
 		UserRepo: userRepo,
+	}
+}
+
+type WorklogService struct {
+	WorklogRepo *repositories.WorklogRepository
+}
+
+func NewWorklogService(worklogRepo *repositories.WorklogRepository) *WorklogService {
+	return &WorklogService{
+		WorklogRepo: worklogRepo,
 	}
 }
 
@@ -35,14 +45,12 @@ func (s *UserService) DeleteUser(userID int32) error {
 	return s.UserRepo.DeleteUser(userID)
 }
 
-type WorklogService struct {
-	WorklogRepo *repositories.WorklogRepository
+func (s *UserService) GetPaginatedUsers(limit, offset int32) ([]models.User, error) {
+	return s.UserRepo.GetPaginatedUsers(limit, offset)
 }
 
-func NewWorklogService(worklogRepo *repositories.WorklogRepository) *WorklogService {
-	return &WorklogService{
-		WorklogRepo: worklogRepo,
-	}
+func (s *UserService) GetFilteredUsers(column1, column2 string) ([]models.User, error) {
+	return s.UserRepo.GetFilteredUsers(column1, column2)
 }
 
 func (s *WorklogService) StartTask(worklog *models.Worklog) error {
@@ -55,12 +63,4 @@ func (s *WorklogService) StopTask(worklog *models.Worklog) error {
 
 func (s *WorklogService) GetUserWorklogs(userID int32) ([]models.Worklog, error) {
 	return s.WorklogRepo.GetUserWorklogs(userID)
-}
-
-func (s *UserService) GetPaginatedUsers(limit, offset int32) ([]models.User, error) {
-	return s.UserRepo.GetPaginatedUsers(limit, offset)
-}
-
-func (s *UserService) GetFilteredUsers(column1, column2 string) ([]models.User, error) {
-	return s.UserRepo.GetFilteredUsers(column1, column2)
 }

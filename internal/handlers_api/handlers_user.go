@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"Effective_Mobile/internal/models"
+	models "Effective_Mobile/internal/queries"
 	"encoding/json"
 	"io"
 	"log"
@@ -47,7 +47,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println("Successfully created user")
-	respondWithJSON(w, http.StatusOK, map[string]string{"status": "200", "message": "User created successfully"})
+	respondWithJSON(w, http.StatusOK, map[string]string{"status": "200", "message": "User created"})
 }
 
 func (h *UserHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {

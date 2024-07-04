@@ -5,8 +5,7 @@
 package db
 
 import (
-	"database/sql"
-	"time"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type User struct {
@@ -15,16 +14,16 @@ type User struct {
 	PassportNumber string
 	Surname        string
 	Name           string
-	Patronymic     sql.NullString
-	Address        sql.NullString
+	Patronymic     pgtype.Text
+	Address        pgtype.Text
 }
 
 type Worklog struct {
-	WorklogID   int32
-	UserID      int32
-	Title       string
-	Description sql.NullString
-	StartTime   time.Time
-	EndTime     sql.NullTime
-	HoursSpent  sql.NullString
+	WorklogID   int32           `json:"worklog_id"`
+	UserID      int32           `json:"user_id"`
+	Title       string          `json:"title"`
+	Description pgtype.Text     `json:"description"`
+	StartTime   pgtype.Timestamp `json:"start_time"`
+	EndTime     pgtype.Timestamp `json:"end_time"`
+	HoursSpent  pgtype.Text     `json:"hours_spent"`
 }

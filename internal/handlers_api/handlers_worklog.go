@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"Effective_Mobile/internal/models"
+	models "Effective_Mobile/internal/queries"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func (h *WorklogHandler) StartTask(w http.ResponseWriter, r *http.Request) {
@@ -23,7 +24,14 @@ func (h *WorklogHandler) StartTask(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	worklog.StartTime = time.Now()
+	if worklog.UserID == 0 {
+		log.Println("UserID is 0, invalid request")
+		http.Error(w, "Invalid UserID", http.StatusBadRequest)
+		return
+	}
+
+	startTime := time.Now()
+	worklog.StartTime = pgtype.Timestamp{Time: startTime, Valid: true}
 
 	if err := h.WorklogService.StartTask(&worklog); err != nil {
 		log.Printf("Error starting task: %v", err)
@@ -31,11 +39,10 @@ func (h *WorklogHandler) StartTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	worklog.StartTime = worklog.StartTime.Truncate(time.Minute)
-
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(worklog)
+	w.WriteHeader(http.StatusOK)
+	response := map[string]string{"status": "200"}
+	json.NewEncoder(w).Encode(response)
 	log.Println("Successfully started task and sent response")
 }
 
@@ -67,12 +74,11 @@ func (h *WorklogHandler) StopTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	worklog.EndTime = worklog.EndTime.Truncate(time.Minute)
-
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(worklog)
-	log.Println("Successfully stopped task and sent response")
+	response := map[string]string{"status": "200"}
+	json.NewEncoder(w).Encode(response)
+	log.Println("Successfully stopped task and sent 200")
 }
 
 func (h *WorklogHandler) GetUserWorklogs(w http.ResponseWriter, r *http.Request) {
@@ -94,8 +100,8 @@ func (h *WorklogHandler) GetUserWorklogs(w http.ResponseWriter, r *http.Request)
 	}
 
 	for i := range worklogs {
-		worklogs[i].StartTime = worklogs[i].StartTime.Truncate(time.Minute)
-		worklogs[i].EndTime = worklogs[i].EndTime.Truncate(time.Minute)
+		worklogs[i].StartTime.Time = worklogs[i].StartTime.Time.Truncate(time.Minute)
+		worklogs[i].EndTime.Time = worklogs[i].EndTime.Time.Truncate(time.Minute)
 	}
 
 	w.Header().Set("Content-Type", "application/json")

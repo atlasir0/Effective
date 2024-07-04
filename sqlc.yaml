@@ -1,6 +1,10 @@
-version: "1"
-packages:
-  - name: db
-    path: internal/storage/postgres/queries
+version: "2"
+sql:
+  - schema: "./internal/storage/postgres/schema.sql"
     queries: "./internal/storage/postgres/queries/queries.sql"
-    schema: "./internal/storage/postgres/schema.sql"
+    engine: "postgresql"
+    gen:
+      go:
+        package: "db"
+        sql_package: "pgx/v5"
+        out: "internal/storage/postgres/queries"

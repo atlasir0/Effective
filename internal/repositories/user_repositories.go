@@ -2,46 +2,38 @@ package repositories
 
 import (
 	"context"
-	"database/sql"
 	"log"
 
-	"Effective_Mobile/internal/models"
-	db "Effective_Mobile/internal/queries"
+	models "Effective_Mobile/internal/queries"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type UserRepository struct {
-	Queries *db.Queries
+	Queries *models.Queries
 }
 
-func NewUserRepository(dbConn *sql.DB) *UserRepository {
+func NewUserRepository(dbConn *pgxpool.Pool) (*UserRepository, error) {
 	return &UserRepository{
-		Queries: db.New(dbConn),
-	}
+		Queries: models.New(dbConn),
+	}, nil
 }
 
 func (r *UserRepository) CreateUser(user *models.User) error {
-	params := db.CreateUserParams{
+	params := models.CreateUserParams{
 		PassportSeries: user.PassportSeries,
 		PassportNumber: user.PassportNumber,
 		Surname:        user.Surname,
 		Name:           user.Name,
-		Patronymic:     sql.NullString{String: user.Patronymic, Valid: user.Patronymic != ""},
-		Address:        sql.NullString{String: user.Address, Valid: user.Address != ""},
+		Patronymic:     user.Patronymic,
+		Address:        user.Address,
 	}
 	createdUser, err := r.Queries.CreateUser(context.Background(), params)
 	if err != nil {
 		log.Printf("failed to create user: %v", err)
 		return err
 	}
-	*user = models.User{
-		UserID:         createdUser.UserID,
-		PassportSeries: createdUser.PassportSeries,
-		PassportNumber: createdUser.PassportNumber,
-		Surname:        createdUser.Surname,
-		Name:           createdUser.Name,
-		Patronymic:     createdUser.Patronymic.String,
-		Address:        createdUser.Address.String,
-	}
+	*user = createdUser
 	log.Printf("user created successfully: %+v", createdUser)
 	return nil
 }
@@ -58,8 +50,8 @@ func (r *UserRepository) GetUserByID(userID int32) (models.User, error) {
 		PassportNumber: user.PassportNumber,
 		Surname:        user.Surname,
 		Name:           user.Name,
-		Patronymic:     user.Patronymic.String,
-		Address:        user.Address.String,
+		Patronymic:     user.Patronymic,
+		Address:        user.Address,
 	}, nil
 }
 
@@ -69,45 +61,25 @@ func (r *UserRepository) GetAllUsers() ([]models.User, error) {
 		log.Printf("failed to get all users: %v", err)
 		return nil, err
 	}
-	var users []models.User
-	for _, dbUser := range dbUsers {
-		users = append(users, models.User{
-			UserID:         dbUser.UserID,
-			PassportSeries: dbUser.PassportSeries,
-			PassportNumber: dbUser.PassportNumber,
-			Surname:        dbUser.Surname,
-			Name:           dbUser.Name,
-			Patronymic:     dbUser.Patronymic.String,
-			Address:        dbUser.Address.String,
-		})
-	}
-	return users, nil
+	return dbUsers, nil
 }
 
 func (r *UserRepository) UpdateUser(user *models.User) error {
-	params := db.UpdateUserParams{
+	params := models.UpdateUserParams{
 		UserID:         user.UserID,
 		PassportSeries: user.PassportSeries,
 		PassportNumber: user.PassportNumber,
 		Surname:        user.Surname,
 		Name:           user.Name,
-		Patronymic:     sql.NullString{String: user.Patronymic, Valid: user.Patronymic != ""},
-		Address:        sql.NullString{String: user.Address, Valid: user.Address != ""},
+		Patronymic:     user.Patronymic,
+		Address:        user.Address,
 	}
 	updatedUser, err := r.Queries.UpdateUser(context.Background(), params)
 	if err != nil {
 		log.Printf("failed to update user: %v", err)
 		return err
 	}
-	*user = models.User{
-		UserID:         updatedUser.UserID,
-		PassportSeries: updatedUser.PassportSeries,
-		PassportNumber: updatedUser.PassportNumber,
-		Surname:        updatedUser.Surname,
-		Name:           updatedUser.Name,
-		Patronymic:     updatedUser.Patronymic.String,
-		Address:        updatedUser.Address.String,
-	}
+	*user = updatedUser
 	return nil
 }
 
@@ -121,7 +93,7 @@ func (r *UserRepository) DeleteUser(userID int32) error {
 }
 
 func (r *UserRepository) GetPaginatedUsers(limit, offset int32) ([]models.User, error) {
-	params := db.GetPaginatedUsersParams{
+	params := models.GetPaginatedUsersParams{
 		Limit:  limit,
 		Offset: offset,
 	}
@@ -130,24 +102,12 @@ func (r *UserRepository) GetPaginatedUsers(limit, offset int32) ([]models.User, 
 		log.Printf("failed to get paginated users: %v", err)
 		return nil, err
 	}
-	var users []models.User
-	for _, dbUser := range dbUsers {
-		users = append(users, models.User{
-			UserID:         dbUser.UserID,
-			PassportSeries: dbUser.PassportSeries,
-			PassportNumber: dbUser.PassportNumber,
-			Surname:        dbUser.Surname,
-			Name:           dbUser.Name,
-			Patronymic:     dbUser.Patronymic.String,
-			Address:        dbUser.Address.String,
-		})
-	}
-	return users, nil
+	return dbUsers, nil
 }
 
 func (r *UserRepository) GetFilteredUsers(column1, column2 string) ([]models.User, error) {
 	log.Printf("Filtering users by column1: %s, column2: %s", column1, column2)
-	params := db.GetFilteredUsersParams{
+	params := models.GetFilteredUsersParams{
 		Column1: column1,
 		Surname: column2,
 	}
@@ -157,17 +117,5 @@ func (r *UserRepository) GetFilteredUsers(column1, column2 string) ([]models.Use
 		return nil, err
 	}
 	log.Printf("Found %d users", len(dbUsers))
-	var users []models.User
-	for _, dbUser := range dbUsers {
-		users = append(users, models.User{
-			UserID:         dbUser.UserID,
-			PassportSeries: dbUser.PassportSeries,
-			PassportNumber: dbUser.PassportNumber,
-			Surname:        dbUser.Surname,
-			Name:           dbUser.Name,
-			Patronymic:     dbUser.Patronymic.String,
-			Address:        dbUser.Address.String,
-		})
-	}
-	return users, nil
+	return dbUsers, nil
 }

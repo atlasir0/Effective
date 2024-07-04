@@ -7,7 +7,8 @@ package db
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -21,12 +22,12 @@ type CreateUserParams struct {
 	PassportNumber string
 	Surname        string
 	Name           string
-	Patronymic     sql.NullString
-	Address        sql.NullString
+	Patronymic     pgtype.Text
+	Address        pgtype.Text
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser,
+	row := q.db.QueryRow(ctx, createUser,
 		arg.PassportSeries,
 		arg.PassportNumber,
 		arg.Surname,
@@ -53,7 +54,7 @@ WHERE user_id = $1
 `
 
 func (q *Queries) DeleteUser(ctx context.Context, userID int32) error {
-	_, err := q.db.ExecContext(ctx, deleteUser, userID)
+	_, err := q.db.Exec(ctx, deleteUser, userID)
 	return err
 }
 
@@ -76,7 +77,7 @@ type GetFilteredUsersParams struct {
 }
 
 func (q *Queries) GetFilteredUsers(ctx context.Context, arg GetFilteredUsersParams) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, getFilteredUsers, arg.Column1, arg.Surname)
+	rows, err := q.db.Query(ctx, getFilteredUsers, arg.Column1, arg.Surname)
 	if err != nil {
 		return nil, err
 	}
@@ -96,9 +97,6 @@ func (q *Queries) GetFilteredUsers(ctx context.Context, arg GetFilteredUsersPara
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -118,7 +116,7 @@ type GetPaginatedUsersParams struct {
 }
 
 func (q *Queries) GetPaginatedUsers(ctx context.Context, arg GetPaginatedUsersParams) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, getPaginatedUsers, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, getPaginatedUsers, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -139,9 +137,6 @@ func (q *Queries) GetPaginatedUsers(ctx context.Context, arg GetPaginatedUsersPa
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -154,7 +149,7 @@ WHERE user_id = $1 LIMIT 1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, userID int32) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUserByID, userID)
+	row := q.db.QueryRow(ctx, getUserByID, userID)
 	var i User
 	err := row.Scan(
 		&i.UserID,
@@ -175,7 +170,7 @@ ORDER BY start_time
 `
 
 func (q *Queries) GetUserWorklogs(ctx context.Context, userID int32) ([]Worklog, error) {
-	rows, err := q.db.QueryContext(ctx, getUserWorklogs, userID)
+	rows, err := q.db.Query(ctx, getUserWorklogs, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -196,9 +191,6 @@ func (q *Queries) GetUserWorklogs(ctx context.Context, userID int32) ([]Worklog,
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -210,7 +202,7 @@ SELECT user_id, passport_series, passport_number, surname, name, patronymic, add
 `
 
 func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, getUsers)
+	rows, err := q.db.Query(ctx, getUsers)
 	if err != nil {
 		return nil, err
 	}
@@ -231,9 +223,6 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -249,11 +238,11 @@ RETURNING worklog_id, user_id, title, description, start_time, end_time, hours_s
 type StartTaskParams struct {
 	UserID      int32
 	Title       string
-	Description sql.NullString
+	Description pgtype.Text
 }
 
 func (q *Queries) StartTask(ctx context.Context, arg StartTaskParams) (Worklog, error) {
-	row := q.db.QueryRowContext(ctx, startTask, arg.UserID, arg.Title, arg.Description)
+	row := q.db.QueryRow(ctx, startTask, arg.UserID, arg.Title, arg.Description)
 	var i Worklog
 	err := row.Scan(
 		&i.WorklogID,
@@ -281,7 +270,7 @@ type StopTaskParams struct {
 }
 
 func (q *Queries) StopTask(ctx context.Context, arg StopTaskParams) (Worklog, error) {
-	row := q.db.QueryRowContext(ctx, stopTask, arg.UserID, arg.WorklogID)
+	row := q.db.QueryRow(ctx, stopTask, arg.UserID, arg.WorklogID)
 	var i Worklog
 	err := row.Scan(
 		&i.WorklogID,
@@ -308,12 +297,12 @@ type UpdateUserParams struct {
 	PassportNumber string
 	Surname        string
 	Name           string
-	Patronymic     sql.NullString
-	Address        sql.NullString
+	Patronymic     pgtype.Text
+	Address        pgtype.Text
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, updateUser,
+	row := q.db.QueryRow(ctx, updateUser,
 		arg.UserID,
 		arg.PassportSeries,
 		arg.PassportNumber,

@@ -4,17 +4,18 @@ import (
 	handlers "Effective_Mobile/internal/handlers_api"
 	"Effective_Mobile/internal/repositories"
 	"Effective_Mobile/internal/services"
-	"database/sql"
+	"log/slog"
 
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type API struct {
-	DB     *sql.DB
+	DB     *pgxpool.Pool
 	Router *mux.Router
 }
 
-func NewAPI(router *mux.Router, dbConn *sql.DB) *API {
+func NewAPI(router *mux.Router, dbConn *pgxpool.Pool) *API {
 	return &API{
 		DB:     dbConn,
 		Router: router,
@@ -22,12 +23,17 @@ func NewAPI(router *mux.Router, dbConn *sql.DB) *API {
 }
 
 func (a *API) RegisterHandlers() {
-	userRepo := repositories.NewUserRepository(a.DB)
-	worklogRepo := repositories.NewWorklogRepository(a.DB)
+	userRepo, err := repositories.NewUserRepository(a.DB)
+	if err != nil {
+		slog.Error("failed to create user repository", slog.String("error", err.Error()))
+	}
+	worklogRepo, err := repositories.NewWorklogRepository(a.DB)
+	if err != nil {
+		slog.Error("failed to create worklog repository", slog.String("error", err.Error()))
+	}
 
 	userService := services.NewUserService(userRepo)
 	worklogService := services.NewWorklogService(worklogRepo)
-
 
 	userHandler := handlers.NewUserHandler(userService)
 	worklogHandler := handlers.NewWorklogHandler(worklogService)

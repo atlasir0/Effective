@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"time"
 
@@ -27,6 +28,11 @@ type Database struct {
 type HTTPConfig struct {
 	Port    int           `mapstructure:"port"`
 	Timeout time.Duration `mapstructure:"timeout"`
+}
+
+func (db *Database) ConnectionString() string {
+	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		db.Host, db.Port, db.User, db.Password, db.Name)
 }
 
 func MustLoad() *Config {
