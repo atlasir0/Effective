@@ -95,12 +95,12 @@
     ```
 
     пример
-
-    ```example
-    Post http://localhost:8080/worklogs
+  
+    ```http
+    POST http://localhost:8080/worklogs
     {
-    "userID": 1,
-    "description": "Working on feature X"
+        "userID": 1,
+        "description": "Working on feature X"
     }
     ```
 
