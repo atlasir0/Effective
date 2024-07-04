@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	models "Effective_Mobile/internal/queries"
+	db "Effective_Mobile/internal/queries" //Это модель а не бд!
 	"encoding/json"
 	"io"
 	"log"
@@ -11,6 +11,14 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// @Summary Create a new user
+// @Description Create a new user
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param user body db.User true "User object"
+// @Success 201 {object} db.User
+// @Router /users [post]
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	log.Println("Received request to create user")
 
@@ -33,7 +41,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user models.User
+	var user db.User
 	if err := json.Unmarshal(bodyBytes, &user); err != nil {
 		log.Printf("Invalid JSON: %v", err)
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
@@ -50,6 +58,13 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, map[string]string{"status": "200", "message": "User created"})
 }
 
+// @Summary Get all users
+// @Description Get a list of all users
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} db.User
+// @Router /users [get]
 func (h *UserHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	log.Println("Received request to get all users")
 
@@ -63,6 +78,14 @@ func (h *UserHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, users)
 }
 
+// @Summary Get user by ID
+// @Description Get a user by ID
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param id path int true "User ID"
+// @Success 200 {object} db.User
+// @Router /users/{id} [get]
 func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	log.Println("Received request to get user by ID")
 
@@ -84,6 +107,15 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, user)
 }
 
+// @Summary Update user
+// @Description Update a user by ID
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param id path int true "User ID"
+// @Param user body db.User true "User object"
+// @Success 200 {object} db.User
+// @Router /users/{id} [put]
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	log.Println("Received request to update user")
 
@@ -109,7 +141,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user models.User
+	var user db.User
 	if err := json.Unmarshal(bodyBytes, &user); err != nil {
 		log.Printf("Invalid JSON: %v", err)
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
@@ -128,6 +160,14 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, map[string]string{"status": "200", "message": "User updated successfully"})
 }
 
+// @Summary Delete user
+// @Description Delete a user by ID
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param id path int true "User ID"
+// @Success 204 "No Content"
+// @Router /users/{id} [delete]
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	log.Println("Received request to delete user")
 
@@ -149,6 +189,15 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, map[string]string{"status": "200", "message": "User deleted successfully"})
 }
 
+// @Summary Get paginated users
+// @Description Get a list of users with pagination
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param limit query int false "Limit"
+// @Param offset query int false "Offset"
+// @Success 200 {array} db.User
+// @Router /users/paginated [get]
 func (h *UserHandler) GetPaginatedUsers(w http.ResponseWriter, r *http.Request) {
 	log.Println("Received request to get paginated users")
 
@@ -174,6 +223,15 @@ func (h *UserHandler) GetPaginatedUsers(w http.ResponseWriter, r *http.Request) 
 	respondWithJSON(w, http.StatusOK, users)
 }
 
+// @Summary Get filtered users
+// @Description Get a list of users filtered by specific columns
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param column1 query string false "Column1"
+// @Param column2 query string false "Column2"
+// @Success 200 {array} db.User
+// @Router /users/filtered [get]
 func (h *UserHandler) GetFilteredUsers(w http.ResponseWriter, r *http.Request) {
 	log.Println("Received request to get filtered users")
 

@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	models "Effective_Mobile/internal/queries"
+	db "Effective_Mobile/internal/queries" //Это модель а не бд!
 	"encoding/json"
 	"log"
 	"net/http"
@@ -12,10 +12,18 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+// @Summary Start a task
+// @Description Start a new task
+// @Tags worklogs
+// @Accept  json
+// @Produce  json
+// @Param worklog body db.Worklog true "Worklog object"
+// @Success 201 {object} db.Worklog
+// @Router /worklogs [post]
 func (h *WorklogHandler) StartTask(w http.ResponseWriter, r *http.Request) {
 	log.Println("Received request to start task")
 
-	var worklog models.Worklog
+	var worklog db.Worklog
 	err := json.NewDecoder(r.Body).Decode(&worklog)
 	if err != nil {
 		log.Printf("Error decoding start task request body: %v", err)
@@ -46,6 +54,15 @@ func (h *WorklogHandler) StartTask(w http.ResponseWriter, r *http.Request) {
 	log.Println("Successfully started task and sent response")
 }
 
+// @Summary Stop a task
+// @Description Stop a task by ID
+// @Tags worklogs
+// @Accept  json
+// @Produce  json
+// @Param id path int true "Worklog ID"
+// @Param worklog body db.Worklog true "Worklog object"
+// @Success 200 {object} db.Worklog
+// @Router /worklogs/{id} [put]
 func (h *WorklogHandler) StopTask(w http.ResponseWriter, r *http.Request) {
 	log.Println("Received request to stop task")
 
@@ -57,7 +74,7 @@ func (h *WorklogHandler) StopTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var worklog models.Worklog
+	var worklog db.Worklog
 	err = json.NewDecoder(r.Body).Decode(&worklog)
 	if err != nil {
 		log.Printf("Error decoding stop task request body: %v", err)
@@ -81,6 +98,14 @@ func (h *WorklogHandler) StopTask(w http.ResponseWriter, r *http.Request) {
 	log.Println("Successfully stopped task and sent 200")
 }
 
+// @Summary Get user worklogs
+// @Description Get a list of worklogs for a user by user ID
+// @Tags worklogs
+// @Accept  json
+// @Produce  json
+// @Param id path int true "User ID"
+// @Success 200 {array} db.Worklog
+// @Router /worklogs/user/{id} [get]
 func (h *WorklogHandler) GetUserWorklogs(w http.ResponseWriter, r *http.Request) {
 	log.Println("Received request to get user worklogs")
 

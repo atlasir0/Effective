@@ -1,10 +1,11 @@
-env: "local"
+env: local
 database:
-  host: "localhost"
+  host: localhost
   port: 5432
-  user: "postgres"
-  password: "123"
-  name: "todo_list"
-HTTP:
-  Port: 8080
-  timeout: 10h
+  user: postgres
+  password: 123
+  name: todo_list
+http:
+  port: 8080
+  timeout: 2h
+server_address: ":8081"

@@ -1,15 +1,14 @@
 package postgres
 
-//TODO: убрать строку 115
-
 import (
 	"database/sql"
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
 
-	_ "github.com/lib/pq"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"gopkg.in/yaml.v2"
 )
 
@@ -38,49 +37,28 @@ func ReadConfig(filename string) (*Config, error) {
 	return &config, nil
 }
 
-func createDatabase(config *Config) error {
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s sslmode=disable", config.Database.Host, config.Database.Port, config.Database.User, config.Database.Password)
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	var exists bool
-	err = db.QueryRow("SELECT EXISTS (SELECT 1 FROM pg_database WHERE datname = $1)", config.Database.Name).Scan(&exists)
-	if err != nil {
-		return err
-	}
-	if exists {
-		log.Println("Database already exists")
-		return nil
-	}
-
-	_, err = db.Exec(fmt.Sprintf("CREATE DATABASE %s", config.Database.Name))
-	if err != nil {
-		return err
-	}
-
-	log.Println("Database created successfully")
-	return nil
-}
-
 func runMigrations(config *Config) error {
-	migrateCmd := exec.Command("migrate", "-path", "migrations", "-database", fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", config.Database.User, config.Database.Password, config.Database.Host, config.Database.Port, config.Database.Name), "up")
-	migrateCmd.Stdout = log.Writer()
-	migrateCmd.Stderr = log.Writer()
-	return migrateCmd.Run()
+	sourceURL := "file://migrations"
+	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", config.Database.User, config.Database.Password, config.Database.Host, config.Database.Port, config.Database.Name)
+
+	m, err := migrate.New(sourceURL, dbURL)
+	if err != nil {
+		return err
+	}
+
+	err = m.Up()
+	if err != nil && err != migrate.ErrNoChange {
+		return err
+	}
+
+	log.Println("Migrations applied successfully")
+	return nil
 }
 
 func InitDB() (*sql.DB, *Config, error) {
 	cfg, err := ReadConfig("config/local.yaml")
 	if err != nil {
 		return nil, nil, fmt.Errorf("could not read config: %w", err)
-	}
-
-	err = createDatabase(cfg)
-	if err != nil {
-		return nil, nil, fmt.Errorf("could not create database: %w", err)
 	}
 
 	dbConnStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", cfg.Database.Host, cfg.Database.Port, cfg.Database.User, cfg.Database.Password, cfg.Database.Name)
@@ -98,35 +76,10 @@ func InitDB() (*sql.DB, *Config, error) {
 	return db, cfg, nil
 }
 
-func dropTable(db *sql.DB) error {
-	_, err := db.Exec("DROP TABLE IF EXISTS tasks;")
-	return err
-}
-
-func dropDatabase(config *Config) error {
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s sslmode=disable", config.Database.Host, config.Database.Port, config.Database.User, config.Database.Password)
-	db, err := sql.Open("postgres", connStr)
+func CloseDB(db *sql.DB) {
+	err := db.Close()
 	if err != nil {
-		return err
+		log.Fatalf("could not close database: %v", err)
 	}
-	defer db.Close()
-
-	_, err = db.Exec(fmt.Sprintf("DROP DATABASE IF EXISTS %s", config.Database.Name))
-	return err
-}
-
-func CloseDB(db *sql.DB, config *Config) {
-	err := dropTable(db)
-	if err != nil {
-		log.Fatalf("could not drop table: %v", err)
-	}
-
-	db.Close()
-
-	err = dropDatabase(config)
-	if err != nil {
-		log.Fatalf("could not drop database: %v", err)
-	}
-
 	log.Println("Database closed successfully")
 }

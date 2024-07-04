@@ -4,17 +4,21 @@ import (
 	"Effective_Mobile/internal/config"
 	initApp "Effective_Mobile/internal/initApp"
 	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	_ "Effective_Mobile/docs"
+
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-const (
-	envLocal = "local"
-	envDev   = "dev"
-	envProd  = "prod"
-)
-
+// @title Effective_Mobile API
+// @version 1.0
+// @description This is the API for the Effective_Mobile application.
+// @host localhost:8080
+// @BasePath /
 func main() {
 	cfg := config.MustLoad()
 	log := setupLogger(cfg.Env)
@@ -26,6 +30,14 @@ func main() {
 		log.Error("failed to initialize application", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
+
+	http.Handle("/swagger/", config.Cors(httpSwagger.WrapHandler))
+	go func() {
+		log.Info("starting Swagger documentation server")
+		if err := http.ListenAndServe(":8081", nil); err != nil {
+			log.Error("failed to serve swagger", slog.String("error", err.Error()))
+		}
+	}()
 
 	go application.MustRun()
 
@@ -42,15 +54,15 @@ func setupLogger(env string) *slog.Logger {
 	var log *slog.Logger
 
 	switch env {
-	case envLocal:
+	case "local":
 		log = slog.New(
 			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
 		)
-	case envDev:
+	case "dev":
 		log = slog.New(
 			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
 		)
-	case envProd:
+	case "prod":
 		log = slog.New(
 			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
 		)

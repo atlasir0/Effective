@@ -1,0 +1,241 @@
+basePath: /
+definitions:
+  db.User:
+    type: object
+  db.Worklog:
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is the API for the Effective_Mobile application.
+  title: Effective_Mobile API
+  version: "1.0"
+paths:
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.User'
+            type: array
+      summary: Get all users
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      parameters:
+      - description: User object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/db.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/db.User'
+      summary: Create a new user
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Delete user
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: Get a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.User'
+      summary: Get user by ID
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/db.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.User'
+      summary: Update user
+      tags:
+      - users
+  /users/filtered:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of users filtered by specific columns
+      parameters:
+      - description: Column1
+        in: query
+        name: column1
+        type: string
+      - description: Column2
+        in: query
+        name: column2
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.User'
+            type: array
+      summary: Get filtered users
+      tags:
+      - users
+  /users/paginated:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of users with pagination
+      parameters:
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.User'
+            type: array
+      summary: Get paginated users
+      tags:
+      - users
+  /worklogs:
+    post:
+      consumes:
+      - application/json
+      description: Start a new task
+      parameters:
+      - description: Worklog object
+        in: body
+        name: worklog
+        required: true
+        schema:
+          $ref: '#/definitions/db.Worklog'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/db.Worklog'
+      summary: Start a task
+      tags:
+      - worklogs
+  /worklogs/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Stop a task by ID
+      parameters:
+      - description: Worklog ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Worklog object
+        in: body
+        name: worklog
+        required: true
+        schema:
+          $ref: '#/definitions/db.Worklog'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Worklog'
+      summary: Stop a task
+      tags:
+      - worklogs
+  /worklogs/user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of worklogs for a user by user ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.Worklog'
+            type: array
+      summary: Get user worklogs
+      tags:
+      - worklogs
+swagger: "2.0"

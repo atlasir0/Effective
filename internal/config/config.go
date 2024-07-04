@@ -3,6 +3,7 @@ package config
 import (
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -12,9 +13,11 @@ import (
 )
 
 type Config struct {
-	Env      string     `mapstructure:"env"`
-	Database Database   `mapstructure:"database"`
-	HTTP     HTTPConfig `mapstructure:"http"`
+	Env            string     `mapstructure:"env"`
+	Database       Database   `mapstructure:"database"`
+	HTTP           HTTPConfig `mapstructure:"http"`
+	ServerAddress  string     `mapstructure:"server_address"`
+	SwaggerAddress string     `mapstructure:"swagger_address"`
 }
 
 type Database struct {
@@ -33,6 +36,20 @@ type HTTPConfig struct {
 func (db *Database) ConnectionString() string {
 	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		db.Host, db.Port, db.User, db.Password, db.Name)
+}
+
+func Cors(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		if r.Method == "OPTIONS" {
+			return
+		}
+
+		h.ServeHTTP(w, r)
+	})
 }
 
 func MustLoad() *Config {

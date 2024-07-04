@@ -13,11 +13,11 @@ import (
 )
 
 func InitializeApp(cfg *config.Config, log *slog.Logger) (*app.App, error) {
-	db, dbConfig, err := postgres.InitDB()
+	db, _, err := postgres.InitDB()
 	if err != nil {
 		return nil, err
 	}
-	defer postgres.CloseDB(db, dbConfig)
+	defer postgres.CloseDB(db)
 
 	connString := cfg.Database.ConnectionString()
 
