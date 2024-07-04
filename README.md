@@ -91,7 +91,7 @@
     
 - Запустить таймер:
     ```http
-    Post /users/filtered?column1={name}&column2={Jhon}
+     /users/filtered?column1={name}&column2={Jhon}
     ```
 
     пример
@@ -106,7 +106,7 @@
 
 - Остановить таймер:
     ```http
-    Post /worklogs/{user_id}
+     /worklogs/{user_id}
     ```
 
     пример
