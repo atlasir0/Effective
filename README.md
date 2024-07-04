@@ -96,7 +96,7 @@
 
     пример
 
-    ```
+    ```example
     Post http://localhost:8080/worklogs
     {
     "userID": 1,
@@ -111,7 +111,7 @@
 
     пример
 
-    ```
+    ```example
     Post http://localhost:8080/worklogs
     {
      "worklog_id": 1
