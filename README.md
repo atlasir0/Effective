@@ -86,14 +86,16 @@
     GET /users/filtered?column1={name}&column2={Jhon}
     ```
     ```example
-    GET http://localhost:8080/users/filtered?column1={name}&column2={Jhon}
+    GET /users/filtered?column1={name}&column2={Jhon}
     ```
     
 - Запустить таймер:
     ```http
     Post /users/filtered?column1={name}&column2={Jhon}
     ```
+
     пример
+
     ```
     Post http://localhost:8080/worklogs
     {
@@ -106,7 +108,9 @@
     ```http
     Post /worklogs/{user_id}
     ```
+
     пример
+
     ```
     Post http://localhost:8080/worklogs
     {
@@ -117,6 +121,8 @@
     ```http
     GET /worklogs/user/{user_id}
     ```
+
+    пример
 
     ```example
     Get http://localhost:8080/worklogs/user/1
