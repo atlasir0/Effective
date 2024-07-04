@@ -91,13 +91,7 @@
     
 - Запустить таймер:
     ```http
-     /users/filtered?column1={name}&column2={Jhon}
-    ```
-
-    пример
-  
-    ```http
-    POST http://localhost:8080/worklogs
+    POST /worklogs
     {
         "userID": 1,
         "description": "Working on feature X"
@@ -106,17 +100,12 @@
 
 - Остановить таймер:
     ```http
-     /worklogs/{user_id}
-    ```
-
-    пример
-
-    ```example
-    Post http://localhost:8080/worklogs
+    PUT /worklogs/{user_id}
     {
-     "worklog_id": 1
+        "worklog_id": 1
     }
     ```
+
 - Вывести результат:
     ```http
     GET /worklogs/user/{user_id}
