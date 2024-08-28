@@ -41,3 +41,8 @@ func (a *API) RegisterHandlers() {
 	userHandler.RegisterRoutes(a.Router)
 	worklogHandler.RegisterRoutes(a.Router)
 }
+
+err := syy.Validate(form)
+  assert.Error(t, err, "Validate() should always return an error")
+  assert.Equal(t, "wtf", err.Error(), "Error message should match")
+ })
